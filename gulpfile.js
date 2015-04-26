@@ -1,29 +1,45 @@
+// shelljs 是 Node.js 实现的一套常见的 shell 命令
+// 这里是全局引入。
+// 作者这里用于发布 gh-pages. 替代办法可以用 gulp-gh-pages
 require('shelljs/global');
 
+// 模块引入，作者是按字母顺序排列
+
+// 在 gulp 中使用命令行选项
 var argv = require('yargs').argv;
+// ES6 Object.assign
 var assign = require('object-assign');
+// Babel browserify transform
 var babelify = require('babelify');
 var browserify = require('browserify');
+// 让 vinyl 文件支持 stream
 var buffer = require('vinyl-buffer');
+// 与 serveStatic 搭建静态服务器
 var connect = require('connect');
+// postcss 插件
 var cssnext = require('gulp-cssnext');
 var del = require('del');
+// markdown front matter parser
 var frontMatter = require('front-matter');
 var gulp = require('gulp');
 var gulpIf = require('gulp-if');
 var gutil = require('gulp-util');
+// HTML entity encoder/decoder
 var he = require('he');
 var hljs = require('highlight.js');
 var htmlmin = require('gulp-htmlmin');
 var jshint = require('gulp-jshint');
+// mozilla 出品的模板引擎，类似于 Python jinjia2
 var nunjucks = require('nunjucks');
 var path = require('path');
 var plumber = require('gulp-plumber');
+// markdown parser
 var Remarkable = require('remarkable');
 var rename = require('gulp-rename');
 var serveStatic = require('serve-static');
 var source = require('vinyl-source-stream');
 var sourcemaps = require('gulp-sourcemaps');
+// stream 包装
 var through = require('through2');
 var uglify = require('gulp-uglify');
 
@@ -40,13 +56,18 @@ const REPO = 'solved-by-flexbox';
 
 /**
  * Truthy if NODE_ENV isn't 'dev'
+ * 见 npm "start": "NODE_ENV=dev gulp serve"
+ * 不过在 windows 下需要这样：set NODE_ENV=dev && gulp serve 
  */
 const PROD = process.env.NODE_ENV !== 'dev';
 
-
+// http://mozilla.github.io/nunjucks/api.html#configure
 nunjucks.configure('templates', { autoescape: false });
 
-
+// plumber({errorHandler: streamError})
+// ？
+// Watch stops on errors
+// https://github.com/gulpjs/gulp/issues/259
 function streamError(err) {
   gutil.beep();
   gutil.log(err instanceof gutil.PluginError ? err.toString() : err.stack);
@@ -65,6 +86,7 @@ function extractFrontMatter(options) {
         var slug = path.basename(file.path, path.extname(file.path));
 
         file.contents = new Buffer(yaml.body);
+        // 添加新属性
         file.data = {
           site: site,
           page: assign({slug: slug}, yaml.attributes)
@@ -82,7 +104,7 @@ function extractFrontMatter(options) {
       files.forEach(function(file) { this.push(file); }.bind(this));
       done();
     }
-  )
+  );
 }
 
 
@@ -114,9 +136,12 @@ function renderMarkdown() {
 
 
 function renderTemplate() {
+  // file 是 vinyl file
+  // https://github.com/wearefractal/vinyl
   return through.obj(function (file, enc, cb) {
     try {
       // Render the file's content to the page.content template property.
+      // 在 file.data 上添加 page.content，以便用在模板中
       var content = file.contents.toString();
       file.data.page.content = nunjucks.renderString(content, file.data);
 
@@ -195,7 +220,7 @@ gulp.task('lint', function() {
       .pipe(plumber({errorHandler: streamError}))
       .pipe(jshint())
       .pipe(jshint.reporter('default'))
-      .pipe(gulpIf(PROD, jshint.reporter('fail')))
+      .pipe(gulpIf(PROD, jshint.reporter('fail')));
 });
 
 

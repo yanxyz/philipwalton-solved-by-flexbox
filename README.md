@@ -1,3 +1,8 @@
+[原项目](https://github.com/philipwalton/solved-by-flexbox)
+
+这个项目是在原项目上添加我的注解，主要是为了学习 gulp。
+
+
 # Solved by Flexbox
 
 A showcase of problems once hard or impossible to solve with CSS alone, now made trivially easy with Flexbox.
